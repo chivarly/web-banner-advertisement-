@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Web Banner Advertisement Study</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/style.css" />
+</head>
+<body>
+
+  <div id="screen-welcome" class="screen active">
+    <div class="welcome-wrap">
+      <div class="study-badge">Research Experiment</div>
+      <h1 class="welcome-title">Web Banner<br /><em>Advertisement Study</em></h1>
+      
+      <div class="access-box">
+        <label for="inp-access-code">Paste Invitation Link</label>
+        <input type="text" id="inp-access-code" placeholder="https://example.com/?batch=1">
+        <p class="input-hint">Paste the full link provided by the researcher.</p>
+      </div>
+
+      <div class="instructions-card">
+        <h2>Instructions</h2>
+        <ol>
+          <li>You will view <strong>6 advertisement conditions</strong> one at a time.</li>
+          <li>Each advertisement must be viewed for <strong>3 minutes</strong> before the survey unlocks.</li>
+          <li>After each advertisement, answer the <strong>9-item survey</strong> honestly.</li>
+          <li>Navigate sequentially — you <strong>cannot go back</strong> to a previous condition.</li>
+        </ol>
+      </div>
+
+      <div id="welcome-error" class="error-msg hidden"></div>
+      <button id="btn-start" class="btn-primary">Begin Experiment</button>
+    </div>
+  </div>
+
+  <div id="screen-experiment" class="screen hidden">
+
+    <header class="exp-header">
+      <div class="progress-track">
+        <div class="progress-steps" id="progress-steps"></div>
+      </div>
+      <div class="exp-counter">
+        Condition <span id="step-current">1</span> of <span id="step-total">6</span>
+      </div>
+    </header>
+
+    <section id="ad-stage" class="ad-stage">
+      <div class="ad-label-chip" id="ad-label-chip">AC1</div>
+
+      <div class="banner-shell" id="banner-shell">
+        <div class="banner-bg" id="banner-bg">
+          <div class="banner-product" id="banner-product"></div>
+          
+          <div class="banner-overlay" id="banner-overlay">
+            <p class="banner-tagline" id="banner-tagline">Discover Something Amazing</p>
+            <p class="banner-cta" id="banner-cta">Shop Now</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="timer-wrap" id="timer-wrap">
+        <div class="timer-ring">
+          <svg viewBox="0 0 100 100" class="timer-svg">
+            <circle cx="50" cy="50" r="44" class="timer-track" />
+            <circle cx="50" cy="50" r="44" class="timer-fill" id="timer-circle" />
+          </svg>
+          <div class="timer-inner">
+            <span id="timer-display">3:00</span>
+            <span class="timer-label">remaining</span>
+          </div>
+        </div>
+        <p class="timer-hint">Please observe the advertisement above</p>
+      </div>
+    </section>
+
+    <section id="survey-stage" class="survey-stage hidden">
+      <div class="survey-header">
+        <h2>Survey</h2>
+        <p>Rate each statement based on the advertisement you just viewed.</p>
+        <div class="scale-legend">
+          <span>1 — Strongly Disagree</span>
+          <span>2 — Disagree</span>
+          <span>3 — Neutral</span>
+          <span>4 — Agree</span>
+          <span>5 — Strongly Agree</span>
+        </div>
+      </div>
+
+      <form id="survey-form" class="survey-form">
+        <div id="questions-container"></div>
+        <div id="survey-error" class="error-msg hidden"></div>
+        <button type="submit" id="btn-submit" class="btn-primary btn-survey">
+          Submit &amp; Continue
+        </button>
+      </form>
+    </section>
+
+  </div>
+
+  <div id="screen-complete" class="screen hidden">
+    <div class="complete-wrap">
+      <div class="complete-icon">✓</div>
+      <h1>Thank You!</h1>
+      <p>You have successfully completed all <strong>6 advertisement conditions</strong>.</p>
+      <p class="complete-sub">Your responses have been recorded. You may now close this window.</p>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

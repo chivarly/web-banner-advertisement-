@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard — Web Banner Study</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="./css/admin.css">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════
+     LOGIN SCREEN
+══════════════════════════════════════════════════ -->
+<div id="screen-login">
+  <div class="login-card">
+    <div class="login-eyebrow">Research Dashboard</div>
+    <h1 class="login-title">Admin Portal</h1>
+    <p class="login-sub">Sign in to view experiment results and analytics.</p>
+
+    <div class="field">
+      <label for="inp-user">Username</label>
+      <input type="text" id="inp-user" placeholder="admin" autocomplete="username" />
+    </div>
+    <div class="field">
+      <label for="inp-pass">Password</label>
+      <input type="password" id="inp-pass" placeholder="••••••••" autocomplete="current-password" />
+    </div>
+    <button class="btn-login" id="btn-login">Sign In</button>
+    <div id="login-error" class="login-error hidden"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     DASHBOARD
+══════════════════════════════════════════════════ -->
+<div id="screen-dashboard" class="hidden">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo">WB · Study</div>
+      <div class="sidebar-sub">Research Admin Panel</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Analytics</div>
+      <button class="nav-item active" data-panel="overview">
+        <span class="nav-icon">◈</span> Overview
+      </button>
+      <button class="nav-item" data-panel="conditions">
+        <span class="nav-icon">⬡</span> By Condition
+      </button>
+      <button class="nav-item" data-panel="comparison">
+        <span class="nav-icon">⇄</span> Comparisons
+      </button>
+      <button class="nav-item" data-panel="questions">
+        <span class="nav-icon">≡</span> By Question
+      </button>
+      <div class="nav-section-label" style="margin-top:12px">Data</div>
+      <button class="nav-item" data-panel="responses">
+        <span class="nav-icon">⊞</span> Raw Responses
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="admin-pill">
+        <div class="admin-avatar" id="admin-avatar">A</div>
+        <div>
+          <div class="admin-name" id="admin-name">Admin</div>
+          <div class="admin-role">Researcher</div>
+        </div>
+      </div>
+      <button class="btn-logout" id="btn-logout">Sign out</button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- OVERVIEW panel -->
+    <div id="panel-overview" class="tab-panel active">
+      <div class="page-header">
+        <div class="page-eyebrow">Dashboard</div>
+        <div class="page-title">Overview</div>
+      </div>
+
+      <div id="overview-loading" class="loading-state"><div class="spinner"></div>Loading…</div>
+      <div id="overview-content" class="hidden">
+        <div id="stat-grid" class="stat-grid"></div>
+
+        <p class="section-title">Survey Dimensions</p>
+        <div id="dim-overview-grid" class="condition-grid"></div>
+      </div>
+    </div>
+
+    <!-- CONDITIONS panel -->
+    <div id="panel-conditions" class="tab-panel">
+      <div class="page-header">
+        <div class="page-eyebrow">Per-Condition Breakdown</div>
+        <div class="page-title">Condition Results</div>
+      </div>
+
+      <div id="cond-loading" class="loading-state"><div class="spinner"></div>Loading…</div>
+      <div id="cond-content" class="hidden">
+        <div id="cond-grid" class="condition-grid"></div>
+      </div>
+    </div>
+
+    <!-- COMPARISON panel -->
+    <div id="panel-comparison" class="tab-panel">
+      <div class="page-header">
+        <div class="page-eyebrow">Group Comparisons</div>
+        <div class="page-title">Color &amp; Product Analysis</div>
+      </div>
+
+      <div id="comp-loading" class="loading-state"><div class="spinner"></div>Loading…</div>
+      <div id="comp-content" class="hidden">
+        <p class="section-title">Color Scheme Comparison</p>
+        <div class="compare-grid" id="color-compare"></div>
+
+        <p class="section-title">Product Comparison</p>
+        <div class="compare-grid" id="product-compare"></div>
+      </div>
+    </div>
+
+    <!-- QUESTIONS panel -->
+    <div id="panel-questions" class="tab-panel">
+      <div class="page-header">
+        <div class="page-eyebrow">Question-level Analysis</div>
+        <div class="page-title">Scores by Statement</div>
+      </div>
+
+      <div id="q-loading" class="loading-state"><div class="spinner"></div>Loading…</div>
+      <div id="q-content" class="hidden">
+        <div class="q-table-wrap">
+          <table class="q-table" id="q-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th style="min-width:260px">Statement</th>
+                <th>AC1</th><th>AC2</th><th>AC3</th>
+                <th>CC1</th><th>CC2</th><th>CC3</th>
+                <th>Avg</th>
+              </tr>
+            </thead>
+            <tbody id="q-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- RAW RESPONSES panel -->
+    <div id="panel-responses" class="tab-panel">
+      <div class="page-header">
+        <div class="page-eyebrow">Data Export</div>
+        <div class="page-title">Raw Responses</div>
+      </div>
+
+      <div class="filter-row">
+        <select class="filter-select" id="f-condition">
+          <option value="">All Conditions</option>
+          <option value="a">AC1 — Donut (Analogous)</option>
+          <option value="b">AC2 — Tumbler (Analogous)</option>
+          <option value="c">AC3 — Rolex (Analogous)</option>
+          <option value="d">CC1 — Donut (Complementary)</option>
+          <option value="e">CC2 — Tumbler (Complementary)</option>
+          <option value="f">CC3 — Rolex (Complementary)</option>
+        </select>
+        <select class="filter-select" id="f-batch">
+          <option value="">All Batches</option>
+          <option value="1">Batch 1</option>
+          <option value="2">Batch 2</option>
+          <option value="3">Batch 3</option>
+          <option value="4">Batch 4</option>
+          <option value="5">Batch 5</option>
+          <option value="6">Batch 6</option>
+        </select>
+        <button class="btn-load" id="btn-load-resp">Apply Filters</button>
+      </div>
+
+      <div id="resp-loading" class="loading-state hidden"><div class="spinner"></div>Loading…</div>
+      <div class="resp-table-wrap">
+        <table class="resp-table">
+          <thead>
+            <tr>
+              <th>Session</th>
+              <th>Batch</th>
+              <th>Condition</th>
+              <th>Q1</th><th>Q2</th><th>Q3</th><th>Q4</th><th>Q5</th>
+              <th>Q6</th><th>Q7</th><th>Q8</th><th>Q9</th>
+              <th>Avg</th>
+              <th>Submitted</th>
+            </tr>
+          </thead>
+          <tbody id="resp-tbody"></tbody>
+        </table>
+      </div>
+      <div class="pag-row">
+        <span id="pag-info">Showing — of — responses</span>
+        <div class="pag-btns">
+          <button class="pag-btn" id="pag-prev" disabled>← Prev</button>
+          <button class="pag-btn" id="pag-next" disabled>Next →</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+<script src="./js/admin.js"></script>
+</body>
+</html>
