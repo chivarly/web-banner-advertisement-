@@ -3,23 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Dashboard — Web Banner Study</title>
+  <title>Admin — Web Banner Study</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="stylesheet" href="./css/admin.css">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/admin.css" />
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════════════
-     LOGIN SCREEN
-══════════════════════════════════════════════════ -->
+<!-- ══ LOGIN ═════════════════════════════════════════ -->
 <div id="screen-login">
   <div class="login-card">
     <div class="login-eyebrow">Research Dashboard</div>
     <h1 class="login-title">Admin Portal</h1>
-    <p class="login-sub">Sign in to view experiment results and analytics.</p>
-
+    <p class="login-sub">Sign in to view experiment results.</p>
     <div class="field">
       <label for="inp-user">Username</label>
       <input type="text" id="inp-user" placeholder="admin" autocomplete="username" />
@@ -33,12 +30,9 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════
-     DASHBOARD
-══════════════════════════════════════════════════ -->
+<!-- ══ DASHBOARD ═════════════════════════════════════ -->
 <div id="screen-dashboard" class="hidden">
 
-  <!-- Sidebar -->
   <aside class="sidebar">
     <div class="sidebar-brand">
       <div class="sidebar-logo">WB · Study</div>
@@ -58,7 +52,7 @@
       <button class="nav-item" data-panel="questions">
         <span class="nav-icon">≡</span> By Question
       </button>
-      <div class="nav-section-label" style="margin-top:12px">Data</div>
+      <div class="nav-section-label" style="margin-top:10px">Data</div>
       <button class="nav-item" data-panel="responses">
         <span class="nav-icon">⊞</span> Raw Responses
       </button>
@@ -75,62 +69,55 @@
     </div>
   </aside>
 
-  <!-- Main -->
   <main class="main">
 
-    <!-- OVERVIEW panel -->
+    <!-- OVERVIEW -->
     <div id="panel-overview" class="tab-panel active">
       <div class="page-header">
         <div class="page-eyebrow">Dashboard</div>
         <div class="page-title">Overview</div>
       </div>
-
       <div id="overview-loading" class="loading-state"><div class="spinner"></div>Loading…</div>
       <div id="overview-content" class="hidden">
         <div id="stat-grid" class="stat-grid"></div>
-
         <p class="section-title">Survey Dimensions</p>
         <div id="dim-overview-grid" class="condition-grid"></div>
       </div>
     </div>
 
-    <!-- CONDITIONS panel -->
+    <!-- CONDITIONS -->
     <div id="panel-conditions" class="tab-panel">
       <div class="page-header">
         <div class="page-eyebrow">Per-Condition Breakdown</div>
         <div class="page-title">Condition Results</div>
       </div>
-
       <div id="cond-loading" class="loading-state"><div class="spinner"></div>Loading…</div>
       <div id="cond-content" class="hidden">
         <div id="cond-grid" class="condition-grid"></div>
       </div>
     </div>
 
-    <!-- COMPARISON panel -->
+    <!-- COMPARISON -->
     <div id="panel-comparison" class="tab-panel">
       <div class="page-header">
         <div class="page-eyebrow">Group Comparisons</div>
         <div class="page-title">Color &amp; Product Analysis</div>
       </div>
-
       <div id="comp-loading" class="loading-state"><div class="spinner"></div>Loading…</div>
       <div id="comp-content" class="hidden">
         <p class="section-title">Color Scheme Comparison</p>
         <div class="compare-grid" id="color-compare"></div>
-
         <p class="section-title">Product Comparison</p>
         <div class="compare-grid" id="product-compare"></div>
       </div>
     </div>
 
-    <!-- QUESTIONS panel -->
+    <!-- BY QUESTION -->
     <div id="panel-questions" class="tab-panel">
       <div class="page-header">
         <div class="page-eyebrow">Question-level Analysis</div>
         <div class="page-title">Scores by Statement</div>
       </div>
-
       <div id="q-loading" class="loading-state"><div class="spinner"></div>Loading…</div>
       <div id="q-content" class="hidden">
         <div class="q-table-wrap">
@@ -138,7 +125,7 @@
             <thead>
               <tr>
                 <th>#</th>
-                <th style="min-width:260px">Statement</th>
+                <th style="min-width:240px">Statement</th>
                 <th>AC1</th><th>AC2</th><th>AC3</th>
                 <th>CC1</th><th>CC2</th><th>CC3</th>
                 <th>Avg</th>
@@ -150,7 +137,7 @@
       </div>
     </div>
 
-    <!-- RAW RESPONSES panel -->
+    <!-- RAW RESPONSES -->
     <div id="panel-responses" class="tab-panel">
       <div class="page-header">
         <div class="page-eyebrow">Data Export</div>
@@ -180,11 +167,13 @@
       </div>
 
       <div id="resp-loading" class="loading-state hidden"><div class="spinner"></div>Loading…</div>
+
       <div class="resp-table-wrap">
         <table class="resp-table">
           <thead>
             <tr>
               <th>Session</th>
+              <th>Participant</th>  <!-- Name + Email combined -->
               <th>Batch</th>
               <th>Condition</th>
               <th>Q1</th><th>Q2</th><th>Q3</th><th>Q4</th><th>Q5</th>
@@ -196,8 +185,9 @@
           <tbody id="resp-tbody"></tbody>
         </table>
       </div>
+
       <div class="pag-row">
-        <span id="pag-info">Showing — of — responses</span>
+        <span id="pag-info">—</span>
         <div class="pag-btns">
           <button class="pag-btn" id="pag-prev" disabled>← Prev</button>
           <button class="pag-btn" id="pag-next" disabled>Next →</button>
@@ -207,6 +197,7 @@
 
   </main>
 </div>
+
 <script src="./js/admin.js"></script>
 </body>
 </html>
