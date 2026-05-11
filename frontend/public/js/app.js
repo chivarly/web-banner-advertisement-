@@ -1,25 +1,27 @@
 'use strict';
 
-// Vite proxy forwards /api → http://localhost:5000
 const API_BASE = '/api';
-const TIMER_SECONDS = 180;
+const TIMER_SECONDS = 180; // 3 minutes per condition, resets each time
 
+// a=AC1, b=AC2, c=AC3, d=CC1, e=CC2, f=CC3
 const CONDITIONS = {
-  a: { label: 'AC1', bgColor: '#7CB342' },
-  b: { label: 'AC2', bgColor: '#7CB342' },
-  c: { label: 'AC3', bgColor: '#7CB342' },
-  d: { label: 'CC1', bgColor: '#FDD835' },
-  e: { label: 'CC2', bgColor: '#FDD835' },
-  f: { label: 'CC3', bgColor: '#FDD835' }
+  a: { label: 'AC1', name: 'Analogous — Donut' },
+  b: { label: 'AC2', name: 'Analogous — Tumbler' },
+  c: { label: 'AC3', name: 'Analogous — Rolex' },
+  d: { label: 'CC1', name: 'Complementary — Donut' },
+  e: { label: 'CC2', name: 'Complementary — Tumbler' },
+  f: { label: 'CC3', name: 'Complementary — Rolex' }
 };
 
+// Each batch defines the ORDER in which conditions are shown
+// Batch 1: d→CC1, e→CC2, c→AC3, f→CC3, b→AC2, a→AC1
 const BATCH_SEQUENCES = {
-  1: ['d','e','c','f','b','a'],
-  2: ['e','f','d','a','c','b'],
-  3: ['f','a','e','b','d','c'],
-  4: ['c','d','b','e','a','f'],
-  5: ['a','b','f','c','e','d'],
-  6: ['b','c','a','d','f','e']
+  1: ['d', 'e', 'c', 'f', 'b', 'a'],
+  2: ['e', 'f', 'd', 'a', 'c', 'b'],
+  3: ['f', 'a', 'e', 'b', 'd', 'c'],
+  4: ['c', 'd', 'b', 'e', 'a', 'f'],
+  5: ['a', 'b', 'f', 'c', 'e', 'd'],
+  6: ['b', 'c', 'a', 'd', 'f', 'e']
 };
 
 const SURVEY_QUESTIONS = [
@@ -34,23 +36,19 @@ const SURVEY_QUESTIONS = [
   'The likelihood of me purchasing this product is high.'
 ];
 
-// Fixed display order for the 6 banner images
-const ALL_LABELS = ['AC1', 'AC2', 'AC3', 'CC1', 'CC2', 'CC3'];
-
 // ── State ─────────────────────────────────────────────
 let state = {
-  batchNumber: null,
-  sequence: [],
-  sessionId: null,
-  currentStep: 0,
-  imgIndex: 0,
-  timerInterval: null,
+  batchNumber:      null,
+  sequence:         [],    // e.g. ['d','e','c','f','b','a'] for batch 1
+  sessionId:        null,
+  currentStep:      0,     // 0–5
+  timerInterval:    null,
   timerSecondsLeft: TIMER_SECONDS,
-  name: '',
-  email: ''
+  name:             '',
+  email:            ''
 };
 
-// ── DOM refs ──────────────────────────────────────────
+// ── DOM ───────────────────────────────────────────────
 const screens = {
   welcome:    document.getElementById('screen-welcome'),
   experiment: document.getElementById('screen-experiment'),
@@ -65,8 +63,6 @@ const dom = {
   stepTotal:          document.getElementById('step-total'),
   adLabelChip:        document.getElementById('ad-label-chip'),
   bannerImg:          document.getElementById('banner-img'),
-  imgCurrent:         document.getElementById('img-current'),
-  btnNextImg:         document.getElementById('btn-next-img'),
   timerDisplay:       document.getElementById('timer-display'),
   timerCircle:        document.getElementById('timer-circle'),
   questionsContainer: document.getElementById('questions-container'),
@@ -113,11 +109,10 @@ function formatTime(s) {
   return `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
 }
 
-// SVG mini ring: r=15, circumference = 2π×15 ≈ 94.25
+// SVG ring r=15, circumference = 2π×15 ≈ 94.25
 const CIRC = 94.25;
 function updateTimerRing(left) {
-  const offset = CIRC * (1 - left / TIMER_SECONDS);
-  dom.timerCircle.style.strokeDashoffset = offset;
+  dom.timerCircle.style.strokeDashoffset = CIRC * (1 - left / TIMER_SECONDS);
   dom.timerCircle.style.stroke =
     left > 60 ? '#3d5af1' :
     left > 20 ? '#f59e0b' : '#ef4444';
@@ -126,9 +121,9 @@ function updateTimerRing(left) {
 // ── API ───────────────────────────────────────────────
 async function apiPost(path, body) {
   const res = await fetch(API_BASE + path, {
-    method: 'POST',
+    method:  'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
+    body:    JSON.stringify(body)
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Request failed');
@@ -136,6 +131,7 @@ async function apiPost(path, body) {
 }
 
 // ── Timer ─────────────────────────────────────────────
+// Resets to 3:00 for every new condition
 function startTimer() {
   clearInterval(state.timerInterval);
   state.timerSecondsLeft = TIMER_SECONDS;
@@ -146,44 +142,52 @@ function startTimer() {
     state.timerSecondsLeft--;
     dom.timerDisplay.textContent = formatTime(state.timerSecondsLeft);
     updateTimerRing(state.timerSecondsLeft);
-
     if (state.timerSecondsLeft <= 0) {
       clearInterval(state.timerInterval);
-      dom.btnNextImg.disabled = true;
-      dom.btnNextImg.textContent = "Time's up — please submit";
+      dom.timerDisplay.textContent = '0:00';
     }
   }, 1000);
 }
 
-// ── Image carousel ────────────────────────────────────
-function showImage(idx) {
-  state.imgIndex = idx;
-  const label = ALL_LABELS[idx];
+// ── Load one condition ────────────────────────────────
+// stepIndex 0–5 → looks up state.sequence[stepIndex] → gets condition code
+// e.g. Batch 1, stepIndex 0 → sequence[0] = 'd' → CC1 → shows banner-CC1.png
+function loadCondition(stepIndex) {
+  state.currentStep = stepIndex;
 
-  // images/ folder is inside public/ which is Vite root, so path is just images/...
-  dom.bannerImg.src = `images/banner-${label}.png`;
-  dom.bannerImg.alt = `Advertisement banner ${label}`;
-  dom.imgCurrent.textContent = idx + 1;
+  const condCode = state.sequence[stepIndex];  // e.g. 'd'
+  const cond     = CONDITIONS[condCode];        // e.g. { label:'CC1', name:'...' }
 
-  const atLast = idx >= 5 || state.timerSecondsLeft <= 0;
-  dom.btnNextImg.disabled = atLast;
-  dom.btnNextImg.textContent =
-    (!atLast)                        ? 'Next Image →' :
-    (state.timerSecondsLeft <= 0)    ? "Time's up — please submit" :
-                                       'All images viewed';
+  // Header
+  dom.adLabelChip.textContent   = cond.label;
+  dom.stepCurrent.textContent   = stepIndex + 1;
+  dom.stepTotal.textContent     = 6;
+  dom.progressSteps.style.width = `${(stepIndex / 6) * 100}%`;
+
+  // Show the banner image for this condition
+  dom.bannerImg.src = `images/banner-${cond.label}.png`;
+  dom.bannerImg.alt = `Advertisement — ${cond.label}`;
+
+  // Reset questionnaire
+  hideError(dom.surveyError);
+  dom.btnSubmit.disabled    = false;
+  dom.btnSubmit.textContent = 'Next Page / Continue →';
+  renderQuestionnaire();
+
+  // Start fresh 3-minute timer
+  startTimer();
+
+  window.scrollTo(0, 0);
 }
 
-dom.btnNextImg.addEventListener('click', () => {
-  if (state.imgIndex < 5) showImage(state.imgIndex + 1);
-});
-
-// ── Survey ────────────────────────────────────────────
-function renderSurvey() {
+// ── Questionnaire ─────────────────────────────────────
+function renderQuestionnaire() {
   dom.questionsContainer.innerHTML = '';
+
   const scaleLabels = ['Strongly\nDisagree', 'Disagree', 'Neutral', 'Agree', 'Strongly\nAgree'];
 
   SURVEY_QUESTIONS.forEach((text, i) => {
-    const n = i + 1;
+    const n    = i + 1;
     const card = document.createElement('div');
     card.className = 'question-card';
 
@@ -198,23 +202,23 @@ function renderSurvey() {
       const lbl = document.createElement('label');
       lbl.className = 'likert-option';
 
-      const input = document.createElement('input');
-      input.type  = 'radio';
-      input.name  = `q${n}`;
-      input.value = v;
+      const input    = document.createElement('input');
+      input.type     = 'radio';
+      input.name     = `q${n}`;
+      input.value    = v;
 
-      const btn = document.createElement('span');
-      btn.className   = 'likert-btn';
+      const btn      = document.createElement('span');
+      btn.className  = 'likert-btn';
       btn.textContent = v;
       btn.addEventListener('click', () => { input.checked = true; });
 
-      const scaleLbl = document.createElement('span');
-      scaleLbl.className   = 'likert-scale-label';
-      scaleLbl.textContent = scaleLabels[v - 1];
+      const lbl2      = document.createElement('span');
+      lbl2.className  = 'likert-scale-label';
+      lbl2.textContent = scaleLabels[v - 1];
 
       lbl.appendChild(input);
       lbl.appendChild(btn);
-      lbl.appendChild(scaleLbl);
+      lbl.appendChild(lbl2);
       row.appendChild(lbl);
     }
 
@@ -234,34 +238,14 @@ function collectAnswers() {
   return answers;
 }
 
-// ── Load condition ────────────────────────────────────
-function loadCondition(stepIndex) {
-  state.currentStep = stepIndex;
-
-  const condCode = state.sequence[stepIndex];
-  dom.adLabelChip.textContent       = CONDITIONS[condCode]?.label || '—';
-  dom.stepCurrent.textContent       = stepIndex + 1;
-  dom.stepTotal.textContent         = 6;
-  dom.progressSteps.style.width     = `${(stepIndex / 6) * 100}%`;
-
-  hideError(dom.surveyError);
-  dom.btnSubmit.disabled    = false;
-  dom.btnSubmit.textContent = 'Submit & Continue →';
-
-  renderSurvey();
-  showImage(0);
-  startTimer();
-  window.scrollTo(0, 0);
-}
-
-// ── Survey submit ─────────────────────────────────────
+// ── Submit questionnaire ──────────────────────────────
 dom.surveyForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   hideError(dom.surveyError);
 
   const answers = collectAnswers();
   if (!answers) {
-    showError(dom.surveyError, 'Please answer all 9 questions before submitting.');
+    showError(dom.surveyError, 'Please answer all 9 questions before continuing.');
     dom.questionsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
     return;
   }
@@ -271,7 +255,7 @@ dom.surveyForm.addEventListener('submit', async (e) => {
 
   try {
     const condCode = state.sequence[state.currentStep];
-    const result = await apiPost('/response', {
+    const result   = await apiPost('/response', {
       sessionId:     state.sessionId,
       stepIndex:     state.currentStep,
       conditionCode: condCode,
@@ -288,7 +272,7 @@ dom.surveyForm.addEventListener('submit', async (e) => {
   } catch (err) {
     showError(dom.surveyError, err.message || 'Failed to save. Please try again.');
     dom.btnSubmit.disabled    = false;
-    dom.btnSubmit.textContent = 'Submit & Continue →';
+    dom.btnSubmit.textContent = 'Next Page / Continue →';
   }
 });
 
@@ -300,11 +284,10 @@ dom.btnStart.addEventListener('click', async () => {
   const nameVal  = document.getElementById('inp-name').value.trim();
   const emailVal = document.getElementById('inp-email').value.trim();
 
-  // Validate before touching the server
   const batch = validateAndExtractBatch(linkVal);
   if (!batch) {
     showError(dom.welcomeError,
-      'Invalid link. Paste the full link from the researcher, e.g. http://localhost:5173?batch=1');
+      'Invalid link. Paste the exact link from the researcher, e.g. https://web-banner-advertisement.onrender.com?batch=1');
     return;
   }
   if (!emailVal || !isValidEmail(emailVal)) {
@@ -330,10 +313,9 @@ dom.btnStart.addEventListener('click', async () => {
 
     showScreen('experiment');
     loadCondition(0);
-
   } catch (err) {
     showError(dom.welcomeError,
-      err.message || 'Could not connect to the server. Make sure the backend is running on port 5000.');
+      err.message || 'Could not connect to the server. Make sure the backend is running.');
   } finally {
     dom.btnStart.disabled    = false;
     dom.btnStart.textContent = 'Begin Experiment';
@@ -341,6 +323,4 @@ dom.btnStart.addEventListener('click', async () => {
 });
 
 // ── Init ──────────────────────────────────────────────
-(function init() {
-  showScreen('welcome');
-})();
+(function init() { showScreen('welcome'); })();

@@ -37,9 +37,11 @@
         <h2>Instructions</h2>
         <ol>
           <li>You will view <strong>6 advertisement conditions</strong> one at a time.</li>
-          <li>Use the <strong>Next Image</strong> button to cycle through the 6 images within 3 minutes.</li>
-          <li>The <strong>survey is always visible</strong> below the image — answer as you go.</li>
-          <li>Submit each survey before the timer ends to proceed to the next condition.</li>
+          <li>Each advertisement is displayed for <strong>3 minutes</strong>. The timer resets for each condition.</li>
+          <li>The <strong> Questionnaire is always visible</strong> below the image — answer as as you observe the image.</li>
+          <li>After answering all 9 questions, click <strong>"Next Page"</strong> to proceed to the next condition.</li>
+          <li>You <strong>cannot go back</strong> to a previous condition.</li>
+          <li>After completing the questionnaire for each advertisement, type <Strong>"done"</Strong> in the Google Meet chat box.</li>
           <li>There are no right or wrong answers. Please answer honestly.</li>
         </ol>
       </div>
@@ -76,13 +78,8 @@
 
     <!-- Main scrollable content -->
     <div class="experiment-body">
-
       <!-- Image viewer -->
       <section class="image-section">
-        <div class="image-nav-row">
-          <span class="img-counter">Image <span id="img-current">1</span> of 6</span>
-          <button id="btn-next-img" class="btn-next-img">Next Image →</button>
-        </div>
         <div class="banner-shell">
           <img id="banner-img" class="banner-img" src="" alt="Advertisement banner" />
         </div>
@@ -91,7 +88,7 @@
       <!-- Survey — always visible -->
       <section class="survey-section">
         <div class="survey-header">
-          <h2>Survey</h2>
+          <h2>Questionnaire</h2>
           <p>Rate each statement based on the advertisement above.</p>
           <div class="scale-legend">
             <span><strong>1</strong> Strongly Disagree</span>
