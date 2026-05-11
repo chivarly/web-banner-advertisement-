@@ -1,6 +1,6 @@
 'use strict';
 
-const API = 'http://localhost:5000/api';
+const API = '/api';
 let TOKEN = localStorage.getItem('admin_token') || null;
 
 const $ = id => document.getElementById(id);

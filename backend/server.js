@@ -13,14 +13,29 @@ const PORT = process.env.PORT || 3000;
 
 // ── CORS Middleware ─────────────────────────────────────
 app.use(cors({
-  origin: [
-    'http://localhost:5173',  // Vite
-    'http://localhost:3000',  // CRA
-    'http://127.0.0.1:5500', // Live Server
-    process.env.FRONTEND_URL || 'http://localhost:3000'
-  ],
+  origin: (origin, callback) => {
+    // Allow these origins
+    const allowedOrigins = [
+      'http://localhost:5173',      // Vite dev
+      'http://127.0.0.1:5500',     // Live Server
+      'http://localhost:3000',      // CRA
+      'https://web-banner-advertisement.onrender.com',  // Render prod
+      'https://yourdomain.com'      // Future custom domain
+    ];
+    
+    // Allow requests with no origin (mobile apps, etc.)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log(`🚫 CORS blocked origin: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true
+  credentials: true,
+  optionsSuccessStatus: 200 // For legacy browsers
 }));
 
 app.use(express.json());
