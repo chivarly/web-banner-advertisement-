@@ -313,7 +313,7 @@ async function loadResponses(paginate = false) {
           <tr>
             <td><span class="session-id">${r.sessionId}</span></td>
             <td>
-              <div class="participant-name">${r.participantName || <span style="color:var(--text3);font-style:italic">—</span>}</div>
+              <div class="participant-name"> ${r.participantName || '—'}</div>
               <div class="participant-email">${r.participantEmail || ''}</div>
             </td>
             <td>Batch ${r.batchNumber}</td>
