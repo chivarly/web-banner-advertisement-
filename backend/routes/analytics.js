@@ -6,9 +6,9 @@ const Participant = require('../models/Participant');
 
 // Condition metadata
 const CONDITIONS = {
-  a: { label: 'AC1', background: 'Analogous',     product: 'Donut',   colorScheme: 'Green-Yellow' },
-  b: { label: 'AC2', background: 'Analogous',     product: 'Tumbler', colorScheme: 'Green-Yellow' },
-  c: { label: 'AC3', background: 'Analogous',     product: 'Rolex',   colorScheme: 'Green-Yellow' },
+  a: { label: 'AC1', background: 'Analogous',     product: 'Donut',   colorScheme: 'Yellow-Green' },
+  b: { label: 'AC2', background: 'Analogous',     product: 'Tumbler', colorScheme: 'Yellow-Green' },
+  c: { label: 'AC3', background: 'Analogous',     product: 'Rolex',   colorScheme: 'Yellow-Green' },
   d: { label: 'CC1', background: 'Complementary', product: 'Donut',   colorScheme: 'Yellow-Purple' },
   e: { label: 'CC2', background: 'Complementary', product: 'Tumbler', colorScheme: 'Yellow-Purple' },
   f: { label: 'CC3', background: 'Complementary', product: 'Rolex',   colorScheme: 'Yellow-Purple' }
@@ -175,7 +175,7 @@ router.get('/by-color', async (req, res) => {
     };
 
     res.json({
-      analogous: buildStats(groups.analogous, 'Analogous (Green-Yellow)'),
+      analogous: buildStats(groups.analogous, 'Analogous (Yellow-Green)'),
       complementary: buildStats(groups.complementary, 'Complementary (Yellow-Purple)')
     });
   } catch (err) {

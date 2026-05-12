@@ -171,7 +171,7 @@ function loadCondition(stepIndex) {
   // Reset questionnaire
   hideError(dom.surveyError);
   dom.btnSubmit.disabled    = false;
-  dom.btnSubmit.textContent = 'Next Page / Continue →';
+  dom.btnSubmit.textContent = 'Continue →';
   renderQuestionnaire();
 
   // Start fresh 3-minute timer
