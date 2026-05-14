@@ -272,7 +272,7 @@ dom.surveyForm.addEventListener('submit', async (e) => {
   } catch (err) {
     showError(dom.surveyError, err.message || 'Failed to save. Please try again.');
     dom.btnSubmit.disabled    = false;
-    dom.btnSubmit.textContent = 'Next Page / Continue →';
+    dom.btnSubmit.textContent = 'Continue →';
   }
 });
 

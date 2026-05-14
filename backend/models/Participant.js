@@ -37,7 +37,11 @@ const participantSchema = new mongoose.Schema({
   currentStep: {
     type: Number,
     default: 0
-  }
+  },
+  responses: {
+  type: Object,
+  default: {}
+}
 }, { timestamps: true });
 
 module.exports = mongoose.model('Participant', participantSchema);

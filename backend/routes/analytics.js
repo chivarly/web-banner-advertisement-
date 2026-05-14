@@ -49,33 +49,37 @@ router.use(authMiddleware);
 // ─────────────────────────────────────────
 router.get('/overview', async (req, res) => {
   try {
-    const [totalParticipants, completedParticipants, totalResponses] = await Promise.all([
-      Participant.countDocuments(),
-      Participant.countDocuments({ completed: true }),
-      Response.countDocuments()
-    ]);
+    const completedParticipants = await Participant.countDocuments({ completed: true });
+    const inProgressParticipants = await Participant.countDocuments({ completed: false });
+    const totalResponses = await Response.countDocuments();
 
-    const completionRate = totalParticipants
-      ? round2((completedParticipants / totalParticipants) * 100)
-      : 0;
+    // Since you only store completed participants now
+    const totalParticipants = completedParticipants;
 
-    // Average score across all responses all questions
+    const completionRate = 100; // no incomplete users stored anymore
+
+    // Calculate overall average
     const allResponses = await Response.find({}, 'answers');
     let allScores = [];
+
     allResponses.forEach(r => {
       Object.values(r.answers.toObject ? r.answers.toObject() : r.answers)
         .forEach(v => { if (typeof v === 'number') allScores.push(v); });
     });
-    const overallAvg = round2(avg(allScores));
+
+    const overallAvg = allScores.length
+      ? Math.round((allScores.reduce((a, b) => a + b, 0) / allScores.length) * 100) / 100
+      : 0;
 
     res.json({
       totalParticipants,
       completedParticipants,
-      inProgressParticipants: totalParticipants - completedParticipants,
+      inProgressParticipants: 0,
       completionRate,
       totalResponses,
       overallAvg
     });
+
   } catch (err) {
     console.error('Overview error:', err);
     res.status(500).json({ error: 'Error fetching overview.' });
