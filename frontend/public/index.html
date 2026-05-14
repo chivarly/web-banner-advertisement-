@@ -36,7 +36,7 @@
       <div class="instructions-card">
         <h2>Instructions</h2>
         <ol>
-          <li>You will view <strong>6 advertisement conditions</strong> one at a time.</li>
+          <li>You will view <strong>6 Web Banners</strong> one at a time.</li>
           <li>Each advertisement is displayed for <strong>3 minutes</strong>. The timer resets for each condition.</li>
           <li>The <strong> Questionnaire is always visible</strong> below the image — answer as you observe the image.</li>
           <li>After answering all 9 questions, click <strong>"Next Page"</strong> to proceed to the next condition.</li>
@@ -46,12 +46,27 @@
         </ol>
       </div>
 
+
       <div id="welcome-error" class="error-msg hidden"></div>
-      <button id="btn-start" class="btn-primary">Begin Experiment</button>
+      <button id="btn-start" class="btn-primary">Next Page</button>
     </div>
   </div>
 
-  <!-- ── SCREEN 2: EXPERIMENT ──────────────────────── -->
+ <div id="screen-scenario" class="screen hidden">
+  <div class="scenario-wrap">
+    <div class="study-badge">Research Experiment</div>
+    <h1 class="welcome-title scenario-title">Scenario</h1>
+    
+    <div class="scenario-card">
+      <p>Imagine that you are casually browsing a website or social media platform for entertainment, shopping, or information. While scrolling through the page, you come across a web banner advertisement displayed on your screen. Kindly view the advertisement carefully and naturally, as if you encountered it during your normal online browsing experience. After viewing the advertisement, simply scroll down the page and answer the short questionnaire provided.</p>
+    </div>
+
+    <button id="btn-scenario-next" class="btn-primary">Begin Experiment</button>
+  </div>
+</div>
+
+
+  <!-- ── SCREEN 3: EXPERIMENT ──────────────────────── -->
   <div id="screen-experiment" class="screen hidden">
 
     <!-- Sticky top bar -->

@@ -51,6 +51,7 @@ let state = {
 // ── DOM ───────────────────────────────────────────────
 const screens = {
   welcome:    document.getElementById('screen-welcome'),
+  scenario:   document.getElementById('screen-scenario'),
   experiment: document.getElementById('screen-experiment'),
   complete:   document.getElementById('screen-complete')
 };
@@ -80,6 +81,13 @@ function showScreen(name) {
   screens[name].classList.remove('hidden');
   screens[name].classList.add('active');
   window.scrollTo(0, 0);
+}
+
+function hideAllScreens() {
+  Object.values(screens).forEach(s => {
+    s.classList.remove('active');
+    s.classList.add('hidden');
+  });
 }
 
 function showError(el, msg) {
@@ -131,7 +139,6 @@ async function apiPost(path, body) {
 }
 
 // ── Timer ─────────────────────────────────────────────
-// Resets to 3:00 for every new condition
 function startTimer() {
   clearInterval(state.timerInterval);
   state.timerSecondsLeft = TIMER_SECONDS;
@@ -150,33 +157,26 @@ function startTimer() {
 }
 
 // ── Load one condition ────────────────────────────────
-// stepIndex 0–5 → looks up state.sequence[stepIndex] → gets condition code
-// e.g. Batch 1, stepIndex 0 → sequence[0] = 'd' → CC1 → shows banner-CC1.png
 function loadCondition(stepIndex) {
   state.currentStep = stepIndex;
 
-  const condCode = state.sequence[stepIndex];  // e.g. 'd'
-  const cond     = CONDITIONS[condCode];        // e.g. { label:'CC1', name:'...' }
+  const condCode = state.sequence[stepIndex];
+  const cond     = CONDITIONS[condCode];
 
-  // Header
   dom.adLabelChip.textContent   = cond.label;
   dom.stepCurrent.textContent   = stepIndex + 1;
   dom.stepTotal.textContent     = 6;
   dom.progressSteps.style.width = `${(stepIndex / 6) * 100}%`;
 
-  // Show the banner image for this condition
   dom.bannerImg.src = `images/banner-${cond.label}.png`;
   dom.bannerImg.alt = `Advertisement — ${cond.label}`;
 
-  // Reset questionnaire
   hideError(dom.surveyError);
   dom.btnSubmit.disabled    = false;
   dom.btnSubmit.textContent = 'Continue →';
   renderQuestionnaire();
 
-  // Start fresh 3-minute timer
   startTimer();
-
   window.scrollTo(0, 0);
 }
 
@@ -276,7 +276,7 @@ dom.surveyForm.addEventListener('submit', async (e) => {
   }
 });
 
-// ── Begin Experiment ──────────────────────────────────
+// 🔥 UPDATED: Welcome button now goes to SCENARIO after validation
 dom.btnStart.addEventListener('click', async () => {
   hideError(dom.welcomeError);
 
@@ -295,15 +295,16 @@ dom.btnStart.addEventListener('click', async () => {
     return;
   }
 
+  // 🔥 SAVE DATA but SHOW SCENARIO INSTEAD OF EXPERIMENT
+  state.batchNumber = batch;
+  state.sequence    = BATCH_SEQUENCES[batch];
+  state.name        = nameVal;
+  state.email       = emailVal;
+
   dom.btnStart.disabled    = true;
-  dom.btnStart.textContent = 'Starting…';
+  dom.btnStart.textContent = 'Validating…';
 
   try {
-    state.batchNumber = batch;
-    state.sequence    = BATCH_SEQUENCES[batch];
-    state.name        = nameVal;
-    state.email       = emailVal;
-
     const session = await apiPost('/session/start', {
       batchNumber: batch,
       name:        nameVal,
@@ -311,15 +312,26 @@ dom.btnStart.addEventListener('click', async () => {
     });
     state.sessionId = session.sessionId;
 
-    showScreen('experiment');
-    loadCondition(0);
+    // 🔥 GO TO SCENARIO SCREEN (instructions)
+    showScenario();
   } catch (err) {
     showError(dom.welcomeError,
       err.message || 'Could not connect to the server. Make sure the backend is running.');
   } finally {
     dom.btnStart.disabled    = false;
-    dom.btnStart.textContent = 'Begin Experiment';
+    dom.btnStart.textContent = 'Next Page';
   }
+});
+
+// 🔥 Scenario functions
+function showScenario() {
+  showScreen('scenario');
+}
+
+document.getElementById('btn-scenario-next').addEventListener('click', function() {
+  // 🔥 NOW start the actual experiment
+  showScreen('experiment');
+  loadCondition(0);
 });
 
 // ── Init ──────────────────────────────────────────────
