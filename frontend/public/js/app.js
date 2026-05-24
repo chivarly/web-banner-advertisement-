@@ -25,15 +25,15 @@ const BATCH_SEQUENCES = {
 };
 
 const SURVEY_QUESTIONS = [
-  'The colors used in the advertisement appear trustworthy.',
+  'The colours of the ad are trustworthy.',
   'I would like to buy this product for myself.',
-  'I perceive this advertisement as honest.',
-  'The overall appearance of the advertisement is appealing.',
-  'I feel that this advertisement is trustworthy.',
-  'The colors used in this advertisement are likable.',
-  'The colors used in this advertisement increase my desire to buy the product.',
-  'I like this advertisement.',
-  'The likelihood of me purchasing this product is high.'
+  'I perceive this ad as honest.',
+  'The overall look of the ad is appealing.',
+  'I feel like i can trust the ad.',
+  'The colours used in this advertisement are likeable.',
+  'The colours of this advertisement make me want to buy the product.',
+  'I like this ad.',
+  'The chances of me buying this product is high.'
 ];
 
 // ── State ─────────────────────────────────────────────
