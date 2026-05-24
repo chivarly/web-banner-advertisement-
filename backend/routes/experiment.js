@@ -49,13 +49,11 @@ router.get('/batch/:batchNumber', async (req, res) => {
 router.post('/session/start', async (req, res) => {
   try {
     const { batchNumber, name, email } = req.body;
-
     const num = parseInt(batchNumber);
 
     if (isNaN(num) || num < 1 || num > 6) {
       return res.status(400).json({ error: 'Invalid batch number.' });
     }
-
     if (!email || !isValidEmail(email.trim())) {
       return res.status(400).json({ error: 'A valid email address is required.' });
     }
@@ -64,22 +62,16 @@ router.post('/session/start', async (req, res) => {
     if (!batch) return res.status(404).json({ error: 'Batch not found.' });
 
     const sessionId = generateSessionId();
-
-    // ✔ CREATE TEMP PARTICIPANT (safe placeholder)
-    await Participant.create({
+    const participant = new Participant({
       sessionId,
       batchNumber: num,
       name: (name || '').trim(),
       email: email.trim().toLowerCase(),
-      currentStep: 0,
-      completed: false
+      currentStep: 0
     });
+    await participant.save();
 
-    return res.status(201).json({
-      sessionId,
-      batchNumber: num
-    });
-
+    res.status(201).json({ sessionId, batchNumber: num });
   } catch (err) {
     console.error('POST /session/start error:', err);
     res.status(500).json({ error: 'Server error creating session.' });
@@ -109,22 +101,13 @@ router.post('/response', async (req, res) => {
     const { sessionId, stepIndex, conditionCode, answers } = req.body;
 
     const participant = await Participant.findOne({ sessionId });
-    if (!participant) {
-      return res.status(404).json({ error: 'Session not found.' });
-    }
+    if (!participant) return res.status(404).json({ error: 'Session not found.' });
+    if (participant.completed) return res.status(400).json({ error: 'Experiment already completed.' });
 
-    if (participant.completed) {
-      return res.status(400).json({ error: 'Experiment already completed.' });
-    }
-
-    const conditionMeta = CONDITIONS[conditionCode];
-    if (!conditionMeta) {
+    if (!CONDITIONS[conditionCode]) {
       return res.status(400).json({ error: 'Invalid condition code.' });
     }
 
-    const conditionLabel = conditionMeta.label;
-
-    // validate answers
     const required = ['q1','q2','q3','q4','q5','q6','q7','q8','q9'];
     for (const q of required) {
       const val = parseInt(answers?.[q]);
@@ -133,26 +116,23 @@ router.post('/response', async (req, res) => {
       }
     }
 
-    // ⭐ SAVE EVERY CONDITION RESPONSE (THIS FIXES YOUR ISSUE)
+    const conditionLabel = CONDITIONS[conditionCode].label;
+
     await Response.findOneAndUpdate(
       { sessionId, conditionCode },
       {
         sessionId,
-        participantName: participant.name || '',
+        participantName:  participant.name  || '',
         participantEmail: participant.email || '',
         batchNumber: participant.batchNumber,
         conditionCode,
         conditionLabel,
         stepIndex,
         answers: {
-          q1: parseInt(answers.q1),
-          q2: parseInt(answers.q2),
-          q3: parseInt(answers.q3),
-          q4: parseInt(answers.q4),
-          q5: parseInt(answers.q5),
-          q6: parseInt(answers.q6),
-          q7: parseInt(answers.q7),
-          q8: parseInt(answers.q8),
+          q1: parseInt(answers.q1), q2: parseInt(answers.q2),
+          q3: parseInt(answers.q3), q4: parseInt(answers.q4),
+          q5: parseInt(answers.q5), q6: parseInt(answers.q6),
+          q7: parseInt(answers.q7), q8: parseInt(answers.q8),
           q9: parseInt(answers.q9)
         },
         submittedAt: new Date()
@@ -163,7 +143,6 @@ router.post('/response', async (req, res) => {
     const nextStep = stepIndex + 1;
     const isComplete = nextStep >= 6;
 
-    // only mark participant completed at the end
     await Participant.findOneAndUpdate(
       { sessionId },
       {
@@ -174,7 +153,6 @@ router.post('/response', async (req, res) => {
     );
 
     res.status(201).json({ success: true, nextStep, isComplete });
-
   } catch (err) {
     console.error('POST /response error:', err);
     res.status(500).json({ error: 'Server error saving response.' });

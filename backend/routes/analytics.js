@@ -30,7 +30,7 @@ const QUESTION_LABELS = {
 const DIMENSIONS = {
   trustworthiness: { label: 'Trustworthiness', questions: ['q1', 'q3', 'q5'], color: '#6366f1' },
   purchaseIntent:  { label: 'Purchase Intent',  questions: ['q2', 'q7', 'q9'], color: '#f59e0b' },
-  aesthetics:      { label: 'Aesthetics',        questions: ['q4', 'q6', 'q8'], color: '#10b981' }
+  likeability:      { label: 'Likeability',        questions: ['q4', 'q6', 'q8'], color: '#10b981' }
 };
 
 function avg(arr) {

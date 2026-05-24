@@ -135,9 +135,9 @@ async function loadOverview() {
     const dimLabels = {
       trustworthiness: { label: 'Trustworthiness', icon: '🛡️', desc: 'Q1, Q3, Q5' },
       purchaseIntent:  { label: 'Purchase Intent',  icon: '🛒', desc: 'Q2, Q7, Q9' },
-      aesthetics:      { label: 'Aesthetics',        icon: '🎨', desc: 'Q4, Q6, Q8' }
+      likeability:      { label: 'Likeability',        icon: '🎨', desc: 'Q4, Q6, Q8' }
     };
-    const dimTotals = { trustworthiness: [], purchaseIntent: [], aesthetics: [] };
+    const dimTotals = { trustworthiness: [], purchaseIntent: [], likeability: [] };
     cond.forEach(c => { Object.keys(dimTotals).forEach(d => { if (c.dimensionMeans[d]?.mean) dimTotals[d].push(c.dimensionMeans[d].mean); }); });
 
     $('dim-overview-grid').innerHTML = Object.entries(dimLabels).map(([key, meta]) => {

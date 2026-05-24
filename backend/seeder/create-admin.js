@@ -1,9 +1,4 @@
-/**
- * Creates the default admin account.
- * Run once: node create-admin.js
- *
- * Change the credentials below before running in production.
- */
+
 
 require('dotenv').config();
 const mongoose = require('mongoose');
@@ -11,7 +6,7 @@ const Admin = require('../models/Admin');
 
 const DEFAULT_ADMIN = {
   username: 'admin',
-  password: '12345678',   // ← Change this before running!
+  password: '12345678',   
   displayName: 'Researcher Admin'
 };
 
